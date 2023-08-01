@@ -1,0 +1,1638 @@
+openapi: 3.0.1
+info:
+  title: gphotos
+  version: '#VERSION#'
+servers:
+- url: /
+paths:
+  /api/gphotos/v1:
+    get:
+      description: Get information about available versions.
+      operationId: getVersionMetadata
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VersionMetadata'
+          description: version metadata
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Not authenticated
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: unexpected error occured
+      tags:
+      - Versions
+  /api/gphotos/v1/albums:
+    get:
+      description: Get all albums owned by or shared with the current logged user.
+      operationId: getAlbums
+      parameters:
+      - description: Sort the list of albums.
+        explode: true
+        in: query
+        name: sort
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: Fetch personal albums.
+        explode: true
+        in: query
+        name: personal
+        required: false
+        schema:
+          type: boolean
+        style: form
+      - description: Fetch shared albums.
+        explode: true
+        in: query
+        name: shared
+        required: false
+        schema:
+          type: boolean
+        style: form
+      - description: search expression
+        explode: true
+        in: query
+        name: search
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: page number
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          format: int32
+          type: integer
+        style: form
+      - description: total number of items per page
+        explode: true
+        in: query
+        name: size
+        required: false
+        schema:
+          format: int32
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlbumList'
+          description: List of albums owned by or shared with logged user.
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Not authenticated.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal error.
+      tags:
+      - Albums
+    post:
+      description: Create an album.
+      operationId: createAlbum
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlbumRequestPayload'
+        description: album data
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Album'
+          description: Album created.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Bad request.
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Not authenticated.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal error.
+      tags:
+      - Albums
+  /api/gphotos/v1/albums/{album_id}:
+    delete:
+      description: Delete the album with specified id.
+      operationId: DeleteAlbum
+      parameters:
+      - description: The ID of the album
+        explode: false
+        in: path
+        name: album_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Album'
+          description: Delete album by specified id.
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Not authenticated.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: No album found with the specified ID exists.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal error.
+      tags:
+      - Albums
+    get:
+      description: Get album by specified id.
+      operationId: GetAlbumByID
+      parameters:
+      - description: The ID of the album
+        explode: false
+        in: path
+        name: album_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Album'
+          description: Fetch album by specified id.
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Not authenticated.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: No album found with the specified ID exists.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal error.
+      tags:
+      - Albums
+    patch:
+      description: Update an album.
+      operationId: UpdateAlbum
+      parameters:
+      - description: The ID of the album
+        explode: false
+        in: path
+        name: album_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlbumRequestPayload'
+        description: Album data
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Album'
+          description: Album successfully updated.
+        "401":
+          content: {}
+          description: Not authenticated.
+        "403":
+          content: {}
+          description: Forbidden.
+        "500":
+          content: {}
+          description: Internal error.
+        "503":
+          content: {}
+          description: Not available.
+      tags:
+      - Albums
+  /api/gphotos/v1/albums/{album_id}/thumbnail:
+    get:
+      description: Get the thumbnail of the specified album.
+      operationId: GetAlbumThumbnail
+      parameters:
+      - description: The ID of the album
+        explode: false
+        in: path
+        name: album_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            image/jpeg:
+              schema:
+                format: binary
+                type: string
+          description: Retreive album's thumbnail.
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Not authenticated.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: No album found with the specified ID exists.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal error.
+      tags:
+      - Albums
+  /api/gphotos/v1/albums/users/{user_id}:
+    get:
+      description: Get all user's album shared with the current logger user.
+      operationId: getAlbumsByUser
+      parameters:
+      - description: The ID of the user
+        explode: false
+        in: path
+        name: user_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: page number
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          format: int32
+          type: integer
+        style: form
+      - description: total number of items per page
+        explode: true
+        in: query
+        name: size
+        required: false
+        schema:
+          format: int32
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlbumList'
+          description: List of album shard by 'user_id' with logged user
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Not authenticated.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: No user found with the specified ID exists.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal error.
+      tags:
+      - Albums
+  /api/gphotos/v1/albums/groups/{group_id}:
+    get:
+      description: Get all groups's album shared with the current logger user.
+      operationId: getAlbumsByGroup
+      parameters:
+      - description: The ID of the group
+        explode: false
+        in: path
+        name: group_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: page number
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          format: int32
+          type: integer
+        style: form
+      - description: total number of items per page
+        explode: true
+        in: query
+        name: size
+        required: false
+        schema:
+          format: int32
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlbumList'
+          description: List of album shared by 'group_id' with logged user.
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Not authenticated.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: No group found with the specified ID exists.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal error.
+      tags:
+      - Albums
+  /api/gphotos/v1/albums/{album_id}/permissions:
+    delete:
+      description: Delete the permission of an album
+      operationId: removeAlbumPermissions
+      parameters:
+      - description: The ID of the album
+        explode: false
+        in: path
+        name: album_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: Remove all album's permissions
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Not authenticated.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: No album found with the specified ID exists.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal error.
+      tags:
+      - Permissions
+    get:
+      description: Retrieve the list of user and group permissions.
+      operationId: getAlbumPermissions
+      parameters:
+      - description: The ID of the album
+        explode: false
+        in: path
+        name: album_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlbumPermissions'
+          description: retrieve the list of user and group permissions
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Not authenticated.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: No album found with the specified ID exists.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal error.
+      tags:
+      - Permissions
+    post:
+      description: Set permission on an album.
+      operationId: setAlbumPermissions
+      parameters:
+      - description: The ID of the album
+        explode: false
+        in: path
+        name: album_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlbumPermissionsRequest'
+        description: Permissions to be applied on the album.
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlbumPermissions'
+          description: Return the list of updated permissions.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Bad request.
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Not authenticated.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: No album found with the specified ID exists.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal error.
+      tags:
+      - Permissions
+  /api/gphotos/v1/albums/{album_id}/photos:
+    get:
+      description: Retrieve the list of photos of the album.
+      operationId: getAlbumPhotos
+      parameters:
+      - description: The ID of the album
+        explode: false
+        in: path
+        name: album_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: page number
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          format: int32
+          type: integer
+        style: form
+      - description: total number of items per page
+        explode: true
+        in: query
+        name: size
+        required: false
+        schema:
+          format: int32
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhotoList'
+          description: Retrieve the list of photos of the album.
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Not authenticated.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: No album found with the specified ID exists.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal error.
+      tags:
+      - Media
+    post:
+      description: Upload a photo to specified album
+      operationId: uploadPhoto
+      parameters:
+      - description: The ID of the album
+        explode: false
+        in: path
+        name: album_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          image/jpeg:
+            schema:
+              $ref: '#/components/schemas/PhotoRequestPayload'
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Photo'
+          description: upload ok
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Not authenticated.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: No album found with the specified ID exists.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal error.
+      tags:
+      - Media
+  /api/gphotos/v1/album/{album_id}/photo/{photo_id}:
+    delete:
+      description: Delete photo with specified id.
+      operationId: deletePhoto
+      parameters:
+      - description: The ID of the album
+        explode: false
+        in: path
+        name: album_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: The ID of the resource
+        explode: false
+        in: path
+        name: photo_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: Delete the photo with specified id.
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Not authenticated.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: No photo found with the specified ID exists.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal error.
+      tags:
+      - Media
+    get:
+      description: Get photo with specified id.
+      operationId: getPhoto
+      parameters:
+      - description: The ID of the album
+        explode: false
+        in: path
+        name: album_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: The ID of the resource
+        explode: false
+        in: path
+        name: photo_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            image/jpeg:
+              schema:
+                format: binary
+                type: string
+          description: Retrieve the photo with specified id.
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Not authenticated.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: No photo or album found with the specified ID exists.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal error.
+      tags:
+      - Media
+  /api/gphotos/v1/albums/{album_id}/tags/{tag_id}:
+    delete:
+      description: Untag an album
+      operationId: removeTagFromAlbum
+      parameters:
+      - description: The ID of the album
+        explode: false
+        in: path
+        name: album_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: The ID of the tag
+        explode: false
+        in: path
+        name: tag_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: Tag dissociated with the album
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Not authenticated.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: No album or tag found with the specified ID exists.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal error.
+      tags:
+      - Tags
+    post:
+      description: Associate a tag with an album.
+      operationId: setTagToAlbum
+      parameters:
+      - description: The ID of the album
+        explode: false
+        in: path
+        name: album_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: The ID of the tag
+        explode: false
+        in: path
+        name: tag_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+          description: Tag associated with the album
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Not authenticated.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: No album or tag found with the specified ID exists.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal error.
+      tags:
+      - Tags
+  /api/gphotos/v1/tags:
+    get:
+      description: Get all tags owned the current logged user.
+      operationId: getTags
+      parameters:
+      - description: page number
+        explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          format: int32
+          type: integer
+        style: form
+      - description: total number of items per page
+        explode: true
+        in: query
+        name: size
+        required: false
+        schema:
+          format: int32
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagList'
+          description: List of tags owned by logged user
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Not authenticated.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal error.
+      tags:
+      - Tags
+    post:
+      description: Create an tag
+      operationId: createTag
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TagRequestPayload'
+        description: Tag data
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+          description: Tag created.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Bad request.
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Not authenticated.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal error.
+      tags:
+      - Tags
+  /api/gphotos/v1/tags/{tag_id}:
+    delete:
+      description: Delete the specified tag.
+      operationId: DeleteTag
+      parameters:
+      - description: The ID of the tag
+        explode: false
+        in: path
+        name: tag_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+          description: Delete tag with specified id
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Not authenticated.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: No tag found with the specified ID exists.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal error.
+      tags:
+      - Tags
+    patch:
+      description: Update the specified tag.
+      operationId: UpdateTag
+      parameters:
+      - description: The ID of the tag
+        explode: false
+        in: path
+        name: tag_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TagRequestPayload'
+        description: Tag data
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+          description: Updated tag.
+        "401":
+          content: {}
+          description: Not authenticated.
+        "403":
+          content: {}
+          description: Forbidden.
+        "500":
+          content: {}
+          description: Internal error.
+        "503":
+          content: {}
+          description: Not available.
+      tags:
+      - Tags
+  /api/gphotos/v1/users:
+    get:
+      description: Return the list of all users except administators.
+      operationId: getUsers
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserList'
+          description: Return a list with all registered users except admins
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Not authenticated.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal error.
+      tags:
+      - Users
+  /api/gphotos/v1/users/{user_id}/related:
+    get:
+      description: Get all the users which shared an album with the logged user
+      operationId: getRelatedUsers
+      parameters:
+      - description: The ID of the user
+        explode: false
+        in: path
+        name: user_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserList'
+          description: return a list with all registered users except admins
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Not authenticated.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal error.
+      tags:
+      - Users
+  /api/gphotos/v1/users/{user_id}/groups/related:
+    get:
+      description: Get all the groups which shared an album with specified user
+      operationId: getRelatedGroups
+      parameters:
+      - description: The ID of the user
+        explode: false
+        in: path
+        name: user_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserList'
+          description: return a list with all registered users except admins
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Not authenticated.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal error.
+      tags:
+      - Users
+  /api/gphotos/v1/groups:
+    get:
+      description: Return the list of all groups.
+      operationId: getGroups
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupList'
+          description: return a list with all existing groups
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Not authenticated.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal error.
+      tags:
+      - Groups
+components:
+  parameters:
+    album_id:
+      description: The ID of the album
+      explode: false
+      in: path
+      name: album_id
+      required: true
+      schema:
+        type: string
+      style: simple
+    tag_id:
+      description: The ID of the tag
+      explode: false
+      in: path
+      name: tag_id
+      required: true
+      schema:
+        type: string
+      style: simple
+    photo_id:
+      description: The ID of the resource
+      explode: false
+      in: path
+      name: photo_id
+      required: true
+      schema:
+        type: string
+      style: simple
+    user_id:
+      description: The ID of the user
+      explode: false
+      in: path
+      name: user_id
+      required: true
+      schema:
+        type: string
+      style: simple
+    group_id:
+      description: The ID of the group
+      explode: false
+      in: path
+      name: group_id
+      required: true
+      schema:
+        type: string
+      style: simple
+    search:
+      description: search expression
+      explode: true
+      in: query
+      name: search
+      required: false
+      schema:
+        type: string
+      style: form
+    page:
+      description: page number
+      explode: true
+      in: query
+      name: page
+      required: false
+      schema:
+        format: int32
+        type: integer
+      style: form
+    size:
+      description: total number of items per page
+      explode: true
+      in: query
+      name: size
+      required: false
+      schema:
+        format: int32
+        type: integer
+      style: form
+  schemas:
+    ObjectReference:
+      properties:
+        id:
+          type: string
+        kind:
+          type: string
+        href:
+          type: string
+      required:
+      - href
+      - id
+      - kind
+      type: object
+    List:
+      properties:
+        kind:
+          type: string
+        page:
+          type: integer
+        size:
+          type: integer
+        total:
+          type: integer
+      required:
+      - items
+      - kind
+      - page
+      - size
+      - total
+      type: object
+    VersionMetadata:
+      allOf:
+      - $ref: '#/components/schemas/ObjectReference'
+      - $ref: '#/components/schemas/VersionMetadata_allOf'
+    Error:
+      allOf:
+      - $ref: '#/components/schemas/ObjectReference'
+      - $ref: '#/components/schemas/Error_allOf'
+    Album:
+      allOf:
+      - $ref: '#/components/schemas/ObjectReference'
+      - $ref: '#/components/schemas/Album_allOf'
+    AlbumList:
+      allOf:
+      - $ref: '#/components/schemas/List'
+      - $ref: '#/components/schemas/AlbumList_allOf'
+    Photo:
+      allOf:
+      - $ref: '#/components/schemas/ObjectReference'
+      - $ref: '#/components/schemas/Photo_allOf'
+      - required:
+        - album
+        - bucket
+        - filename
+        - thumbnail
+    PhotoList:
+      allOf:
+      - $ref: '#/components/schemas/List'
+      - $ref: '#/components/schemas/PhotoList_allOf'
+    Tag:
+      allOf:
+      - $ref: '#/components/schemas/ObjectReference'
+      - $ref: '#/components/schemas/Tag_allOf'
+    TagList:
+      allOf:
+      - $ref: '#/components/schemas/List'
+      - $ref: '#/components/schemas/TagList_allOf'
+    User:
+      allOf:
+      - $ref: '#/components/schemas/ObjectReference'
+      - $ref: '#/components/schemas/User_allOf'
+    UserList:
+      allOf:
+      - $ref: '#/components/schemas/List'
+      - $ref: '#/components/schemas/UserList_allOf'
+    Group:
+      allOf:
+      - $ref: '#/components/schemas/ObjectReference'
+      - $ref: '#/components/schemas/Group_allOf'
+    GroupList:
+      allOf:
+      - $ref: '#/components/schemas/List'
+      - $ref: '#/components/schemas/GroupList_allOf'
+    Permissions:
+      properties:
+        owner:
+          $ref: '#/components/schemas/ObjectReference'
+        permissions:
+          items:
+            type: string
+          type: array
+      required:
+      - owner
+      - permissions
+      type: object
+    AlbumPermissions:
+      allOf:
+      - $ref: '#/components/schemas/ObjectReference'
+      - $ref: '#/components/schemas/AlbumPermissions_allOf'
+      required:
+      - album
+    AlbumPermissionsRequest:
+      items:
+        properties:
+          owner:
+            properties:
+              kind:
+                description: user or group
+                type: string
+              id:
+                description: id of the owner
+                type: string
+            required:
+            - id
+            - kind
+            type: object
+          permissions:
+            items:
+              type: string
+            type: array
+        required:
+        - owner
+        - permissions
+        type: object
+      type: array
+    AlbumRequestPayload:
+      example:
+        thumbnail: thumbnail
+        user_permissions: user_permissions
+        name: name
+        description: description
+        created_at: 0
+        location: location
+        group_permissions: group_permissions
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        created_at:
+          format: int64
+          type: integer
+        location:
+          type: string
+        user_permissions:
+          type: string
+        group_permissions:
+          type: string
+        thumbnail:
+          description: name of the thumbnail
+          type: string
+      required:
+      - name
+      type: object
+    TagRequestPayload:
+      example:
+        color: color
+        name: name
+      properties:
+        name:
+          description: name of the tag
+          type: string
+        color:
+          description: hex rerepresentation of the color
+          type: string
+      required:
+      - name
+      type: object
+    PhotoRequestPayload:
+      format: binary
+      type: string
+    VersionMetadata_allOf:
+      properties:
+        collections:
+          items:
+            allOf:
+            - $ref: '#/components/schemas/ObjectReference'
+            type: object
+          type: array
+    Error_allOf:
+      properties:
+        code:
+          type: integer
+        reason:
+          type: string
+      required:
+      - code
+    Album_allOf:
+      properties:
+        name:
+          description: name of the album
+          type: string
+        created_at:
+          description: creation date in unix timestamp
+          format: date-time
+          type: string
+        description:
+          description: description of the album
+          type: string
+        location:
+          description: location of the album
+          type: string
+        bucket:
+          description: path of the bucket where media is stored
+          type: string
+        thumbnail:
+          description: url of the thumbnail of the album
+          type: string
+        owner:
+          $ref: '#/components/schemas/ObjectReference'
+        photos:
+          $ref: '#/components/schemas/ObjectReference'
+        tags:
+          items:
+            $ref: '#/components/schemas/Tag'
+          type: array
+        permissions:
+          $ref: '#/components/schemas/ObjectReference'
+      required:
+      - bucket
+      - created_at
+      - name
+      - owner
+      - permissions
+      - photos
+    AlbumList_allOf:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/Album'
+          type: array
+    Photo_allOf:
+      properties:
+        album:
+          $ref: '#/components/schemas/ObjectReference'
+        thumbnail:
+          description: path to the thumbnail of the photo
+          type: string
+    PhotoList_allOf:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/Photo'
+          type: array
+    Tag_allOf:
+      properties:
+        albums:
+          items:
+            $ref: '#/components/schemas/ObjectReference'
+          type: array
+        user:
+          $ref: '#/components/schemas/ObjectReference'
+        name:
+          description: name of the tag
+          type: string
+        color:
+          description: color of the tag in hex format
+          type: string
+      required:
+      - albums
+      - name
+      - user
+    TagList_allOf:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/Tag'
+          type: array
+    User_allOf:
+      properties:
+        name:
+          description: name of the user
+          type: string
+        surname:
+          description: surname of the user
+          type: string
+        user_id:
+          description: user_id
+          type: string
+        groups:
+          items:
+            $ref: '#/components/schemas/ObjectReference'
+          type: array
+    UserList_allOf:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/User'
+          type: array
+    Group_allOf:
+      properties:
+        name:
+          description: name of the group
+          type: string
+        members:
+          items:
+            $ref: '#/components/schemas/ObjectReference'
+          type: array
+    GroupList_allOf:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/Group'
+          type: array
+    AlbumPermissions_allOf:
+      properties:
+        album:
+          $ref: '#/components/schemas/ObjectReference'
+        users:
+          items:
+            $ref: '#/components/schemas/Permissions'
+          type: array
+        groups:
+          items:
+            $ref: '#/components/schemas/Permissions'
+          type: array
